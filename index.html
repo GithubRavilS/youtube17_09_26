@@ -79,49 +79,71 @@ body::before{
 .grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .grid4{grid-template-columns:repeat(4,minmax(0,1fr))}
 
-.rank-wrap{
-  width:min(980px,100%);
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+.pie-stage{
+  position:relative;
+  width:min(1180px,100%);
+  height:min(560px,68vh);
+  margin:0 auto;
 }
-.rank{
-  display:grid;
-  grid-template-columns: 200px 1fr 110px 120px;
-  gap:16px;
-  align-items:center;
-  padding:14px 18px;
-  border-radius:16px;
-  background:rgba(255,255,255,.045);
-  border:1px solid rgba(255,255,255,.08);
+.pie-wires{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:4;overflow:visible;
 }
-.rank-name{
-  font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em;
-  display:flex;align-items:center;gap:12px;min-width:0;
+.pie-core{
+  position:absolute;left:50%;top:50%;
+  width:min(360px,42vw);height:min(360px,42vw);
+  transform:translate(-50%,-50%);
+  z-index:2;
 }
-.rank-dot{
-  width:12px;height:12px;border-radius:4px;flex-shrink:0;
+.pie-core::before{
+  content:"";position:absolute;inset:-18%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(46,242,160,.12),transparent 62%);
+  z-index:0;pointer-events:none;
 }
-.rank-track{
-  height:18px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;
+.pie-core canvas{position:relative;z-index:1;width:100%!important;height:100%!important}
+.pie-hole{
+  position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;pointer-events:none;text-align:center;
 }
-.rank-fill{
-  height:100%;border-radius:999px;width:0;
-  transition:width .9s cubic-bezier(.2,.8,.2,1);
+.pie-hole b{
+  font-family:Outfit,sans-serif;font-weight:800;
+  font-size:clamp(28px,3.4vw,42px);line-height:1;letter-spacing:-.02em;color:#fff;
 }
-.rank-pct{
-  font-family:Outfit,sans-serif;font-weight:800;font-size:26px;text-align:right;
-  font-variant-numeric:tabular-nums;line-height:1;
+.pie-hole span{
+  margin-top:6px;font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;
 }
-.rank-amt{
-  font-family:Outfit,sans-serif;font-weight:800;font-size:20px;color:var(--muted);text-align:right;
-  font-variant-numeric:tabular-nums;
+.pie-tags{position:absolute;inset:0;z-index:5;pointer-events:none}
+.pie-tag{
+  position:absolute;width:210px;
+  padding:12px 14px 12px 16px;
+  border-radius:14px;
+  background:rgba(12,16,28,.92);
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  backdrop-filter:blur(10px);
+  transform:translateY(-50%);
+  opacity:0;
+  transition:opacity .35s ease, transform .35s ease;
 }
-.rank-note{
-  grid-column:1 / -1;
-  margin-top:-4px;padding-left:24px;
-  font-size:14px;font-weight:600;color:var(--muted);
+.pie-stage.is-ready .pie-tag{opacity:1}
+.pie-tag::before{
+  content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:4px;
+  background:var(--tag);
 }
+.pie-tag .t-name{font-size:15px;font-weight:800;color:#fff;line-height:1.15;padding-left:6px}
+.pie-tag .t-val{
+  margin-top:6px;padding-left:6px;
+  font-family:Outfit,sans-serif;font-weight:800;font-size:22px;line-height:1;
+  color:var(--tag);font-variant-numeric:tabular-nums;
+}
+.pie-tag .t-sub{margin-top:4px;padding-left:6px;font-size:13px;font-weight:700;color:var(--muted)}
+.pie-tag.side-left{text-align:right}
+.pie-tag.side-left::before{left:auto;right:0}
+.pie-tag.side-left .t-name,
+.pie-tag.side-left .t-val,
+.pie-tag.side-left .t-sub{padding-left:0;padding-right:6px}
+
 .chart.wide{max-width:1100px;height:460px;width:100%}
 .meter{width:min(920px,100%);height:52px;border-radius:14px;overflow:hidden;display:flex;background:rgba(255,255,255,.06)}
 .idle{width:min(720px,100%);height:58px;border-radius:16px;overflow:hidden;display:flex}
@@ -136,10 +158,9 @@ body::before{
 @media(max-width:900px){
   .slide{padding:44px 18px 36px}
   .grid2,.grid3,.grid4{grid-template-columns:1fr}
-  .rank{grid-template-columns:110px 1fr 72px 88px;gap:10px;padding:12px}
-  .rank-name{font-size:16px}
-  .rank-pct{font-size:20px}
-  .rank-amt{font-size:15px}
+  .pie-stage{height:auto;min-height:420px}
+  .pie-tag{width:150px;padding:10px}
+  .pie-tag .t-val{font-size:18px}
   .vs{grid-template-columns:1fr}.vs .mid{display:none}
   .title{font-size:clamp(28px,7vw,40px);margin-bottom:18px}
 }
@@ -207,7 +228,14 @@ body::before{
 
 <section class="slide">
   <div class="title">Кто забирает доход</div>
-  <div class="rank-wrap" id="legRev"></div>
+  <div class="pie-stage" id="stage-pieRev">
+    <svg class="pie-wires" aria-hidden="true"></svg>
+    <div class="pie-core">
+      <canvas id="pieRev"></canvas>
+      <div class="pie-hole" id="holeRev"><b>$1.2B</b><span>revenue 30д</span></div>
+    </div>
+    <div class="pie-tags" id="tagsRev"></div>
+  </div>
 </section>
 
 <section class="slide">
@@ -223,7 +251,14 @@ body::before{
 
 <section class="slide">
   <div class="title">Из чего состоит рынок стейблов</div>
-  <div class="rank-wrap" id="legStables"></div>
+  <div class="pie-stage" id="stage-pieStables">
+    <svg class="pie-wires" aria-hidden="true"></svg>
+    <div class="pie-core">
+      <canvas id="pieStables"></canvas>
+      <div class="pie-hole" id="holeStables"><b>$311B</b><span>стейблы</span></div>
+    </div>
+    <div class="pie-tags" id="tagsStables"></div>
+  </div>
 </section>
 
 <section class="slide">
@@ -241,7 +276,14 @@ body::before{
 
 <section class="slide">
   <div class="title">Куда уходят комиссии</div>
-  <div class="rank-wrap" id="legCats"></div>
+  <div class="pie-stage" id="stage-pieCats">
+    <svg class="pie-wires" aria-hidden="true"></svg>
+    <div class="pie-core">
+      <canvas id="pieCats"></canvas>
+      <div class="pie-hole" id="holeCats"><b>$2.2B</b><span>fees 30д</span></div>
+    </div>
+    <div class="pie-tags" id="tagsCats"></div>
+  </div>
 </section>
 
 <section class="slide">
@@ -268,7 +310,14 @@ body::before{
 
 <section class="slide">
   <div class="title">Кто лидирует среди DEX</div>
-  <div class="rank-wrap" id="legDex"></div>
+  <div class="pie-stage" id="stage-pieDex">
+    <svg class="pie-wires" aria-hidden="true"></svg>
+    <div class="pie-core">
+      <canvas id="pieDex"></canvas>
+      <div class="pie-hole" id="holeDex"><b>DEX</b><span>fees 30д</span></div>
+    </div>
+    <div class="pie-tags" id="tagsDex"></div>
+  </div>
 </section>
 
 <section class="slide">
@@ -308,7 +357,14 @@ body::before{
 
 <section class="slide">
   <div class="title">Кто лидирует в lending</div>
-  <div class="rank-wrap" id="legLend"></div>
+  <div class="pie-stage" id="stage-pieLend">
+    <svg class="pie-wires" aria-hidden="true"></svg>
+    <div class="pie-core">
+      <canvas id="pieLend"></canvas>
+      <div class="pie-hole" id="holeLend"><b>Lending</b><span>fees 30д</span></div>
+    </div>
+    <div class="pie-tags" id="tagsLend"></div>
+  </div>
 </section>
 
 <section class="slide">
@@ -328,7 +384,14 @@ body::before{
 
 <section class="slide">
   <div class="title">Кто лидирует среди перпов</div>
-  <div class="rank-wrap" id="legPerps"></div>
+  <div class="pie-stage" id="stage-piePerps">
+    <svg class="pie-wires" aria-hidden="true"></svg>
+    <div class="pie-core">
+      <canvas id="piePerps"></canvas>
+      <div class="pie-hole" id="holePerps"><b>Perps</b><span>fees 30д</span></div>
+    </div>
+    <div class="pie-tags" id="tagsPerps"></div>
+  </div>
 </section>
 
 <section class="slide">
@@ -459,49 +522,177 @@ Chart.defaults.font.family='Manrope, system-ui, sans-serif';
 Chart.defaults.font.weight='700';
 Chart.defaults.font.size=15;
 Chart.defaults.plugins.legend.display=false;
-Chart.defaults.plugins.tooltip.backgroundColor='rgba(10,14,24,.96)';
-Chart.defaults.plugins.tooltip.titleFont={size:16,weight:'800'};
-Chart.defaults.plugins.tooltip.bodyFont={size:15,weight:'700'};
-Chart.defaults.plugins.tooltip.padding=14;
-Chart.defaults.plugins.tooltip.cornerRadius=10;
+Chart.defaults.plugins.tooltip.enabled=false;
+Chart.defaults.plugins.datalabels = {display:false};
 
 const slides=[...document.querySelectorAll('.slide')];
 let i=0;
 const progress=document.getElementById('progress');
 const counter=document.getElementById('counter');
+const pieApps=[];
 
 function show(n){
   i=Math.max(0,Math.min(slides.length-1,n));
   slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
   progress.style.width=((i+1)/slides.length*100)+'%';
   counter.textContent=(i+1)+' / '+slides.length;
-  animateRanks(slides[i]);
+  requestAnimationFrame(()=>requestAnimationFrame(layoutAllPies));
+  setTimeout(layoutAllPies, 360);
 }
 
-function renderRanks(el, items){
-  const max = Math.max(...items.map(x=>x.share), 1);
-  el.innerHTML = items.map(it => `
-    <div class="rank">
-      <div class="rank-name">
-        <span class="rank-dot" style="background:${it.color}"></span>
-        <span>${it.name}</span>
+function resolveY(values, minY, maxY, gap){
+  const ys = values.slice();
+  for(let pass=0; pass<24; pass++){
+    for(let k=1;k<ys.length;k++){
+      if(ys[k]-ys[k-1] < gap){
+        const mid=(ys[k]+ys[k-1])/2;
+        ys[k-1]=mid-gap/2;
+        ys[k]=mid+gap/2;
+      }
+    }
+    if(ys[0]<minY){
+      const d=minY-ys[0];
+      for(let k=0;k<ys.length;k++) ys[k]+=d;
+    }
+    if(ys[ys.length-1]>maxY){
+      const d=ys[ys.length-1]-maxY;
+      for(let k=0;k<ys.length;k++) ys[k]-=d;
+    }
+  }
+  return ys;
+}
+
+function layoutPieCallouts(app){
+  const {chart, items, stage, svg, tagsEl} = app;
+  if(!chart || !stage) return;
+  const slide = stage.closest('.slide');
+  if(slide && !slide.classList.contains('active')){
+    svg.innerHTML='';
+    tagsEl.innerHTML='';
+    stage.classList.remove('is-ready');
+    return;
+  }
+
+  const sr = stage.getBoundingClientRect();
+  const cr = chart.canvas.getBoundingClientRect();
+  const meta = chart.getDatasetMeta(0);
+  if(!meta?.data?.length) return;
+
+  const ox = cr.left - sr.left;
+  const oy = cr.top - sr.top;
+  const tagW = Math.min(210, sr.width * 0.2);
+  const padX = 8;
+  const padY = 36;
+  const gap = Math.min(64, Math.max(52, sr.height / (items.length + 1)));
+  const elbow = 26;
+
+  const pts = meta.data.map((arc, idx)=>{
+    const mid = (arc.startAngle + arc.endAngle) / 2;
+    const r = arc.outerRadius;
+    const ax = ox + arc.x + Math.cos(mid) * r;
+    const ay = oy + arc.y + Math.sin(mid) * r;
+    const side = Math.cos(mid) >= 0 ? 'right' : 'left';
+    return {idx, mid, ax, ay, side, item: items[idx], cx: ox + arc.x, cy: oy + arc.y, r};
+  }).filter(p => p.item);
+
+  const left = pts.filter(p=>p.side==='left').sort((a,b)=>a.ay-b.ay);
+  const right = pts.filter(p=>p.side==='right').sort((a,b)=>a.ay-b.ay);
+
+  function place(group){
+    if(!group.length) return [];
+    const natural = group.map(p=>p.ay);
+    const ys = resolveY(natural, padY, sr.height - padY, gap);
+    return group.map((p, i)=>({...p, ly: ys[i]}));
+  }
+
+  const placed = [...place(left), ...place(right)];
+  let wires = '';
+  let tags = '';
+
+  placed.forEach(p=>{
+    const isRight = p.side === 'right';
+    const ex = p.ax + Math.cos(p.mid) * 14;
+    const ey = p.ay + Math.sin(p.mid) * 14;
+    const gutterX = isRight
+      ? Math.max(ex + elbow, sr.width * 0.5 + p.r * 0.15)
+      : Math.min(ex - elbow, sr.width * 0.5 - p.r * 0.15);
+    const labelX = isRight ? sr.width - padX - tagW : padX;
+    const joinX = isRight ? labelX : labelX + tagW;
+    const color = p.item.color;
+
+    wires += `
+      <path d="M ${p.ax.toFixed(1)} ${p.ay.toFixed(1)}
+               L ${ex.toFixed(1)} ${ey.toFixed(1)}
+               L ${gutterX.toFixed(1)} ${ey.toFixed(1)}
+               L ${gutterX.toFixed(1)} ${p.ly.toFixed(1)}
+               L ${joinX.toFixed(1)} ${p.ly.toFixed(1)}"
+            fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <circle cx="${p.ax.toFixed(1)}" cy="${p.ay.toFixed(1)}" r="4.2" fill="${color}"/>
+      <circle cx="${joinX.toFixed(1)}" cy="${p.ly.toFixed(1)}" r="3.6" fill="${color}"/>
+    `;
+
+    const val = p.item.pct + (p.item.amt ? ` · ${p.item.amt}` : '');
+    tags += `
+      <div class="pie-tag side-${p.side}" style="top:${p.ly}px;${isRight ? `right:${padX}px` : `left:${padX}px`};--tag:${color};width:${tagW}px">
+        <div class="t-name">${p.item.name}</div>
+        <div class="t-val">${p.item.pct}</div>
+        ${p.item.amt ? `<div class="t-sub">${p.item.amt}</div>` : (p.item.note ? `<div class="t-sub">${p.item.note}</div>` : '')}
       </div>
-      <div class="rank-track"><div class="rank-fill" data-w="${(it.share/max*100).toFixed(1)}%" style="background:${it.color}"></div></div>
-      <div class="rank-pct" style="color:${it.color}">${it.pct}</div>
-      <div class="rank-amt">${it.amt || ''}</div>
-      ${it.note ? `<div class="rank-note">${it.note}</div>` : ''}
-    </div>
-  `).join('');
+    `;
+  });
+
+  svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
+  svg.setAttribute('width', sr.width);
+  svg.setAttribute('height', sr.height);
+  svg.innerHTML = wires;
+  tagsEl.innerHTML = tags;
+  requestAnimationFrame(()=>stage.classList.add('is-ready'));
 }
 
-function animateRanks(slide){
-  if(!slide) return;
-  slide.querySelectorAll('.rank-fill').forEach(el=>{
-    el.style.width = '0';
-    requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{ el.style.width = el.dataset.w; });
-    });
+function layoutAllPies(){
+  pieApps.forEach(layoutPieCallouts);
+}
+
+function makePie(canvasId, tagsId, items){
+  const canvas = document.getElementById(canvasId);
+  const stage = canvas.closest('.pie-stage');
+  const svg = stage.querySelector('.pie-wires');
+  const tagsEl = document.getElementById(tagsId);
+  const app = {chart:null, items, stage, svg, tagsEl};
+
+  app.chart = new Chart(canvas, {
+    type:'doughnut',
+    data:{
+      labels: items.map(x=>x.name),
+      datasets:[{
+        data: items.map(x=>x.share),
+        backgroundColor: items.map(x=>x.color),
+        borderWidth: 5,
+        borderColor: '#06080f',
+        hoverOffset: 0,
+        spacing: 2
+      }]
+    },
+    options:{
+      cutout:'62%',
+      rotation: -90,
+      layout:{padding:10},
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:{
+        animateRotate:true,
+        duration:900,
+        onComplete:()=>layoutPieCallouts(app)
+      },
+      plugins:{
+        datalabels:{display:false},
+        tooltip:{enabled:false}
+      }
+    }
   });
+
+  pieApps.push(app);
+  return app;
 }
 
 /* цифры строго по сценарию */
@@ -513,54 +704,52 @@ const revItems = [
   {name:'Uniswap', share:1.3, pct:'~1%', amt:'$15M', color:C.cyan},
   {name:'Остальные', share:32.1, pct:'32%', amt:'$386M', color:C.gray}
 ];
-renderRanks(document.getElementById('legRev'), revItems);
+makePie('pieRev', 'tagsRev', revItems);
 
 const stablesItems = [
   {name:'USDT · Tether', share:59, pct:'59%', amt:'$183B', color:C.gold},
   {name:'USDC · Circle', share:24, pct:'24%', amt:'$74B', color:C.blue},
-  {name:'Все остальные', share:17, pct:'17%', amt:'$54B', color:C.gray}
+  {name:'Остальные', share:17, pct:'17%', amt:'$54B', color:C.gray}
 ];
-renderRanks(document.getElementById('legStables'), stablesItems);
+makePie('pieStables', 'tagsStables', stablesItems);
 
 const catItems = [
   {name:'Стейблкоины', share:30, pct:'~30%', amt:'~$660M', color:C.gold},
   {name:'DEX', share:25, pct:'~25%', amt:'~$550M', color:C.blue},
-  {name:'Перпы / деривативы', share:17.5, pct:'15–20%', amt:'', color:C.coral},
+  {name:'Перпы', share:17.5, pct:'15–20%', amt:'деривативы', color:C.coral},
   {name:'Lending', share:10, pct:'~10%', amt:'~$220M', color:C.violet},
-  {name:'Остальное', share:18, pct:'~18%', amt:'хвост', note:'LRT · launchpads · bridges · агрегаторы', color:C.gray}
+  {name:'Остальное', share:18, pct:'~18%', amt:'LRT · bridges', color:C.gray}
 ];
-renderRanks(document.getElementById('legCats'), catItems);
+makePie('pieCats', 'tagsCats', catItems);
 
 const dexItems = [
   {name:'Uniswap', share:165, pct:'$165M', amt:'', color:C.blue},
-  {name:'Pump', share:152, pct:'$152M', amt:'', note:'bonding curve + PumpSwap · не классический AMM', color:C.orange},
+  {name:'Pump', share:152, pct:'$152M', amt:'не классич. AMM', color:C.orange},
   {name:'PancakeSwap', share:23, pct:'$23M', amt:'', color:C.gold},
   {name:'Meteora', share:20, pct:'$20M', amt:'', color:C.mint},
   {name:'Raydium', share:18, pct:'$18M', amt:'', color:C.violet}
 ];
-renderRanks(document.getElementById('legDex'), dexItems);
+makePie('pieDex', 'tagsDex', dexItems);
 
 const lendItems = [
   {name:'Aave', share:34, pct:'$34M', amt:'', color:C.violet},
   {name:'Sky', share:27, pct:'$27M', amt:'', color:C.gold},
   {name:'Morpho', share:17, pct:'$17M', amt:'', color:C.blue}
 ];
-renderRanks(document.getElementById('legLend'), lendItems);
+makePie('pieLend', 'tagsLend', lendItems);
 
 const perpsItems = [
   {name:'Hyperliquid', share:77, pct:'$77M', amt:'30 дней', color:C.mint},
-  {name:'Остальной рынок', share:23, pct:'хвост', amt:'другие перпы', color:C.gray}
+  {name:'Остальные', share:23, pct:'хвост', amt:'другие перпы', color:C.gray}
 ];
-renderRanks(document.getElementById('legPerps'), perpsItems);
+makePie('piePerps', 'tagsPerps', perpsItems);
 
-const barLabels = ['Tether','Circle','Hyperliquid','Pump','Uniswap'];
-const barVals = [484,196,63,56,15];
 new Chart(document.getElementById('barRev'),{
   type:'bar',
   data:{
-    labels: barLabels,
+    labels:['Tether','Circle','Hyperliquid','Pump','Uniswap'],
     datasets:[{
-      data: barVals,
+      data:[484,196,63,56,15],
       backgroundColor:[C.gold,C.blue,C.mint,C.orange,C.cyan],
       borderRadius:12,borderSkipped:false,barThickness:52
     }]
@@ -580,22 +769,19 @@ new Chart(document.getElementById('barRev'),{
       }
     },
     plugins:{
-      tooltip:{callbacks:{label:c=>` $${c.raw}M`}},
+      tooltip:{enabled:true,callbacks:{label:c=>` $${c.raw}M`}},
       datalabels:{
-        anchor:'end',
-        align:'right',
-        offset:10,
-        color:'#fff',
-        backgroundColor:'rgba(6,8,15,.75)',
-        borderRadius:8,
+        anchor:'end', align:'right', offset:10, color:'#fff',
+        backgroundColor:'rgba(6,8,15,.75)', borderRadius:8,
         padding:{top:4,bottom:4,left:8,right:8},
         font:{family:'Outfit, Manrope, sans-serif', weight:800, size:18},
-        formatter:(v)=>'$'+v+'M'
+        formatter:v=>'$'+v+'M'
       }
     }
   }
 });
 
+window.addEventListener('resize', ()=>requestAnimationFrame(layoutAllPies));
 window.addEventListener('keydown',e=>{
   if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();show(i+1)}
   if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(i-1)}
@@ -612,6 +798,7 @@ window.addEventListener('touchend',e=>{
 },{passive:true});
 
 show(0);
+setTimeout(layoutAllPies, 950);
 </script>
 </body>
 </html>
