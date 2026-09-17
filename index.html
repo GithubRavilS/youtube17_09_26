@@ -80,16 +80,21 @@ body::before{
 .grid4{grid-template-columns:repeat(4,minmax(0,1fr))}
 
 .pie-layout{
+  position:relative;
   display:grid;
-  grid-template-columns: minmax(260px,380px) minmax(360px,560px);
-  gap:40px;
+  grid-template-columns: minmax(260px,360px) minmax(380px,580px);
+  gap:56px;
   align-items:center;
-  width:min(1100px,100%);
+  width:min(1120px,100%);
 }
-.chart{width:100%;height:360px;position:relative}
+.pie-wires{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:3;overflow:visible;
+}
+.chart{width:100%;height:360px;position:relative;z-index:1}
 .chart.wide{max-width:1100px;height:460px;width:100%}
 
-.legend{display:flex;flex-direction:column;gap:10px;width:100%}
+.legend{display:flex;flex-direction:column;gap:10px;width:100%;position:relative;z-index:2}
 .leg{
   display:grid;
   grid-template-columns:10px 1fr auto;
@@ -132,6 +137,7 @@ body::before{
 @media(max-width:900px){
   .slide{padding:44px 18px 36px}
   .grid2,.grid3,.grid4,.pie-layout{grid-template-columns:1fr}
+  .pie-wires{display:none}
   .chart{height:280px}
   .vs{grid-template-columns:1fr}.vs .mid{display:none}
   .title{font-size:clamp(28px,7vw,40px);margin-bottom:18px}
@@ -201,6 +207,7 @@ body::before{
 <section class="slide">
   <div class="title">Кто забирает доход</div>
   <div class="pie-layout">
+    <svg class="pie-wires" aria-hidden="true"></svg>
     <div class="chart"><canvas id="pieRev"></canvas></div>
     <div class="legend" id="legRev"></div>
   </div>
@@ -220,6 +227,7 @@ body::before{
 <section class="slide">
   <div class="title">Из чего состоит рынок стейблов</div>
   <div class="pie-layout">
+    <svg class="pie-wires" aria-hidden="true"></svg>
     <div class="chart"><canvas id="pieStables"></canvas></div>
     <div class="legend" id="legStables"></div>
   </div>
@@ -241,6 +249,7 @@ body::before{
 <section class="slide">
   <div class="title">Куда уходят комиссии</div>
   <div class="pie-layout">
+    <svg class="pie-wires" aria-hidden="true"></svg>
     <div class="chart"><canvas id="pieCats"></canvas></div>
     <div class="legend" id="legCats"></div>
   </div>
@@ -271,6 +280,7 @@ body::before{
 <section class="slide">
   <div class="title">Кто лидирует среди DEX</div>
   <div class="pie-layout">
+    <svg class="pie-wires" aria-hidden="true"></svg>
     <div class="chart"><canvas id="pieDex"></canvas></div>
     <div class="legend" id="legDex"></div>
   </div>
@@ -314,6 +324,7 @@ body::before{
 <section class="slide">
   <div class="title">Кто лидирует в lending</div>
   <div class="pie-layout">
+    <svg class="pie-wires" aria-hidden="true"></svg>
     <div class="chart"><canvas id="pieLend"></canvas></div>
     <div class="legend" id="legLend"></div>
   </div>
@@ -337,6 +348,7 @@ body::before{
 <section class="slide">
   <div class="title">Кто лидирует среди перпов</div>
   <div class="pie-layout">
+    <svg class="pie-wires" aria-hidden="true"></svg>
     <div class="chart"><canvas id="piePerps"></canvas></div>
     <div class="legend" id="legPerps"></div>
   </div>
@@ -480,11 +492,15 @@ const slides=[...document.querySelectorAll('.slide')];
 let i=0;
 const progress=document.getElementById('progress');
 const counter=document.getElementById('counter');
+const pieLinks=[];
+
 function show(n){
   i=Math.max(0,Math.min(slides.length-1,n));
   slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
   progress.style.width=((i+1)/slides.length*100)+'%';
   counter.textContent=(i+1)+' / '+slides.length;
+  requestAnimationFrame(()=>requestAnimationFrame(drawAllPieWires));
+  setTimeout(drawAllPieWires, 380);
 }
 
 function renderLegend(el, items){
@@ -503,8 +519,68 @@ function renderLegend(el, items){
   `).join('');
 }
 
-function doughnut(id, items){
-  return new Chart(document.getElementById(id),{
+function drawPieWires(chart, legendEl, items, svg){
+  if(!chart || !legendEl || !svg) return;
+  const layout = svg.closest('.pie-layout');
+  if(!layout) return;
+  const slide = layout.closest('.slide');
+  if(slide && !slide.classList.contains('active')){
+    svg.innerHTML = '';
+    return;
+  }
+
+  const lr = layout.getBoundingClientRect();
+  const cr = chart.canvas.getBoundingClientRect();
+  const meta = chart.getDatasetMeta(0);
+  if(!meta || !meta.data || !meta.data.length) return;
+  const legs = [...legendEl.querySelectorAll('.leg')];
+  const ox = cr.left - lr.left;
+  const oy = cr.top - lr.top;
+
+  let html = '';
+  meta.data.forEach((arc, idx)=>{
+    if(!arc || arc.hidden || !legs[idx]) return;
+    const it = items[idx];
+    const mid = (arc.startAngle + arc.endAngle) / 2;
+    const r = arc.outerRadius;
+    const x0 = ox + arc.x + Math.cos(mid) * (r - 6);
+    const y0 = oy + arc.y + Math.sin(mid) * (r - 6);
+    const x1 = ox + arc.x + Math.cos(mid) * (r + 10);
+    const y1 = oy + arc.y + Math.sin(mid) * (r + 10);
+
+    const leg = legs[idx].getBoundingClientRect();
+    const x3 = leg.left - lr.left - 2;
+    const y3 = leg.top - lr.top + leg.height / 2;
+    const x2 = Math.min(x3 - 18, Math.max(x1 + 28, (x1 + x3) / 2));
+
+    const color = it.color;
+    html += `
+      <path d="M ${x0.toFixed(1)} ${y0.toFixed(1)}
+               L ${x1.toFixed(1)} ${y1.toFixed(1)}
+               C ${x2.toFixed(1)} ${y1.toFixed(1)}, ${x2.toFixed(1)} ${y3.toFixed(1)}, ${x3.toFixed(1)} ${y3.toFixed(1)}"
+            fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+      <circle cx="${x0.toFixed(1)}" cy="${y0.toFixed(1)}" r="4.5" fill="${color}"/>
+      <circle cx="${x3.toFixed(1)}" cy="${y3.toFixed(1)}" r="4.5" fill="${color}"/>
+    `;
+  });
+  svg.setAttribute('viewBox', `0 0 ${lr.width} ${lr.height}`);
+  svg.setAttribute('width', lr.width);
+  svg.setAttribute('height', lr.height);
+  svg.innerHTML = html;
+}
+
+function drawAllPieWires(){
+  pieLinks.forEach(p => drawPieWires(p.chart, p.legend, p.items, p.svg));
+}
+
+function doughnut(canvasId, legendId, items){
+  const canvas = document.getElementById(canvasId);
+  const legend = document.getElementById(legendId);
+  const layout = canvas.closest('.pie-layout');
+  const svg = layout.querySelector('.pie-wires');
+  renderLegend(legend, items);
+
+  const chart = new Chart(canvas,{
     type:'doughnut',
     data:{
       labels: items.map(x=>x.name),
@@ -513,14 +589,18 @@ function doughnut(id, items){
         backgroundColor: items.map(x=>x.color),
         borderWidth: 4,
         borderColor: '#06080f',
-        hoverOffset: 4
+        hoverOffset: 0
       }]
     },
     options:{
-      cutout:'58%',
-      layout:{padding:8},
+      cutout:'56%',
+      layout:{padding:18},
       responsive:true,
       maintainAspectRatio:false,
+      animation:{
+        duration:700,
+        onComplete:()=>drawPieWires(chart, legend, items, svg)
+      },
       plugins:{
         datalabels:{display:false},
         tooltip:{
@@ -534,6 +614,9 @@ function doughnut(id, items){
       }
     }
   });
+
+  pieLinks.push({chart, legend, items, svg});
+  return chart;
 }
 
 /* цифры строго по сценарию · pct/amt читаются в легенде */
@@ -545,26 +628,23 @@ const revItems = [
   {name:'Uniswap', share:1.3, pct:'~1%', amt:'$15M', color:C.cyan},
   {name:'Остальные', share:32.1, pct:'32%', amt:'$386M', color:C.gray}
 ];
-renderLegend(document.getElementById('legRev'), revItems);
-doughnut('pieRev', revItems);
+doughnut('pieRev', 'legRev', revItems);
 
 const stablesItems = [
   {name:'USDT · Tether', share:59, pct:'59%', amt:'$183B', color:C.gold},
   {name:'USDC · Circle', share:24, pct:'24%', amt:'$74B', color:C.blue},
   {name:'Все остальные', share:17, pct:'17%', amt:'$54B', color:C.gray}
 ];
-renderLegend(document.getElementById('legStables'), stablesItems);
-doughnut('pieStables', stablesItems);
+doughnut('pieStables', 'legStables', stablesItems);
 
 const catItems = [
   {name:'Стейблкоины', share:30, pct:'~30%', amt:'~$660M', color:C.gold},
   {name:'DEX', share:25, pct:'~25%', amt:'~$550M', color:C.blue},
-  {name:'Перпы / деривативы', share:17, pct:'15–20%', amt:'от всех fees', color:C.coral},
+  {name:'Перпы / деривативы', share:17, pct:'15–20%', amt:'', color:C.coral},
   {name:'Lending', share:10, pct:'~10%', amt:'~$220M', color:C.violet},
-  {name:'Остальное', share:18, pct:'~18%', amt:'LRT · launchpads · bridges', note:'liquid staking, мосты, агрегаторы', color:C.gray}
+  {name:'Остальное', share:18, pct:'~18%', amt:'LRT · bridges · launchpads', note:'liquid staking, агрегаторы', color:C.gray}
 ];
-renderLegend(document.getElementById('legCats'), catItems);
-doughnut('pieCats', catItems);
+doughnut('pieCats', 'legCats', catItems);
 
 const dexItems = [
   {name:'Uniswap', share:30, pct:'$165M', amt:'лидер AMM', color:C.blue},
@@ -574,8 +654,7 @@ const dexItems = [
   {name:'Raydium', share:3, pct:'$18M', amt:'', color:C.violet},
   {name:'Остальные DEX', share:31, pct:'хвост', amt:'остальной рынок', color:C.gray}
 ];
-renderLegend(document.getElementById('legDex'), dexItems);
-doughnut('pieDex', dexItems);
+doughnut('pieDex', 'legDex', dexItems);
 
 const lendItems = [
   {name:'Aave', share:15, pct:'$34M', amt:'лидер lending', color:C.violet},
@@ -583,15 +662,13 @@ const lendItems = [
   {name:'Morpho', share:8, pct:'$17M', amt:'', color:C.blue},
   {name:'Остальные', share:65, pct:'остальные', amt:'другие рынки', color:C.gray}
 ];
-renderLegend(document.getElementById('legLend'), lendItems);
-doughnut('pieLend', lendItems);
+doughnut('pieLend', 'legLend', lendItems);
 
 const perpsItems = [
   {name:'Hyperliquid', share:77, pct:'$77M', amt:'за 30 дней', color:C.mint},
   {name:'Остальной рынок', share:23, pct:'остальные', amt:'другие перпы', color:C.gray}
 ];
-renderLegend(document.getElementById('legPerps'), perpsItems);
-doughnut('piePerps', perpsItems);
+doughnut('piePerps', 'legPerps', perpsItems);
 
 const barLabels = ['Tether','Circle','Hyperliquid','Pump','Uniswap'];
 const barVals = [484,196,63,56,15];
@@ -636,6 +713,8 @@ new Chart(document.getElementById('barRev'),{
   }
 });
 
+window.addEventListener('resize', ()=>requestAnimationFrame(drawAllPieWires));
+
 window.addEventListener('keydown',e=>{
   if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();show(i+1)}
   if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(i-1)}
@@ -652,6 +731,7 @@ window.addEventListener('touchend',e=>{
 },{passive:true});
 
 show(0);
+setTimeout(drawAllPieWires, 750);
 </script>
 </body>
 </html>
