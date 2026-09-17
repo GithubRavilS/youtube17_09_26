@@ -88,9 +88,7 @@ body::before{
 .chart{width:100%;height:380px;position:relative}
 .chart.wide{max-width:1100px;height:420px;width:100%}
 
-.legend{
-  display:flex;flex-direction:column;gap:10px;width:100%;
-}
+.legend{display:flex;flex-direction:column;gap:10px;width:100%}
 .leg{
   display:grid;
   grid-template-columns:22px 1fr auto;
@@ -101,25 +99,14 @@ body::before{
   background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.06);
 }
-.swatch{
-  width:18px;height:18px;border-radius:5px;flex-shrink:0;
-}
-.leg-name{
-  font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em;
-}
+.swatch{width:18px;height:18px;border-radius:5px;flex-shrink:0}
+.leg-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em}
 .leg-val{
   font-family:Outfit,sans-serif;
   font-size:20px;font-weight:800;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
 }
-
-.stack{width:min(1040px,100%);display:flex;flex-direction:column;gap:12px}
-.stack-row{display:grid;grid-template-columns:22px 150px 1fr 110px;gap:12px;align-items:center}
-.stack-name{font-weight:800;font-size:18px}
-.stack-track{height:34px;border-radius:10px;background:rgba(255,255,255,.06);overflow:hidden}
-.stack-fill{height:100%;border-radius:10px;width:0;transition:width .85s cubic-bezier(.2,.8,.2,1)}
-.stack-val{font-family:Outfit,sans-serif;font-weight:800;font-size:20px;text-align:right;font-variant-numeric:tabular-nums}
 
 .meter{width:min(920px,100%);height:52px;border-radius:14px;overflow:hidden;display:flex;background:rgba(255,255,255,.06)}
 .idle{width:min(720px,100%);height:58px;border-radius:16px;overflow:hidden;display:flex}
@@ -135,7 +122,6 @@ body::before{
   .slide{padding:44px 18px 36px}
   .grid2,.grid3,.grid4,.pie-layout{grid-template-columns:1fr}
   .chart{height:280px}
-  .stack-row{grid-template-columns:18px 90px 1fr 72px}
   .vs{grid-template-columns:1fr}.vs .mid{display:none}
   .title{font-size:clamp(28px,7vw,40px);margin-bottom:18px}
 }
@@ -201,7 +187,6 @@ body::before{
   <div class="sub" style="margin-top:14px"><b>56%</b> всего дохода рынка</div>
 </section>
 
-<!-- revenue pie -->
 <section class="slide">
   <div class="title">Кто забирает доход</div>
   <div class="pie-layout">
@@ -218,10 +203,9 @@ body::before{
 <section class="slide">
   <div class="title">Стейблкоины — огромный бизнес</div>
   <div class="huge gold">$311B</div>
-  <div class="sub">зарабатывают на резервах, а не на каждом обмене</div>
+  <div class="sub">капитализация · август 2026</div>
 </section>
 
-<!-- stables pie — 3 slices only -->
 <section class="slide">
   <div class="title">Из чего состоит рынок стейблов</div>
   <div class="pie-layout">
@@ -233,17 +217,16 @@ body::before{
 <section class="slide">
   <div class="title wide">Комиссии и доход — не одно и то же</div>
   <div class="grid2">
-    <div class="card center"><div class="num">$2.3B</div><div class="cap">заплатили пользователи</div></div>
+    <div class="card center"><div class="num">$2.2B</div><div class="cap">заплатили пользователи</div></div>
     <div class="card center"><div class="num mint">$1.2B</div><div class="cap">оставили себе протоколы</div></div>
   </div>
 </section>
 
 <section class="slide">
   <div class="title">Сколько комиссий за месяц</div>
-  <div class="huge">$2.3B</div>
+  <div class="huge">$2.2B</div>
 </section>
 
-<!-- cats pie -->
 <section class="slide">
   <div class="title">Куда уходят комиссии</div>
   <div class="pie-layout">
@@ -270,8 +253,8 @@ body::before{
 
 <section class="slide">
   <div class="title">Сколько зарабатывают DEX</div>
-  <div class="huge blue">$415M</div>
-  <div class="sub">18% всех комиссий за месяц</div>
+  <div class="huge blue">~$550M</div>
+  <div class="sub">примерно <b>четверть</b> всех комиссий</div>
 </section>
 
 <section class="slide">
@@ -285,36 +268,36 @@ body::before{
 <section class="slide">
   <div class="title">Сравнение крупных площадок</div>
   <div class="grid3">
-    <div class="card center"><div class="num blue">$183M</div><div class="cap">Uniswap · 44% DEX</div></div>
-    <div class="card center"><div class="num orange">$152M</div><div class="cap">Pump · 37% DEX</div></div>
-    <div class="card center"><div class="num mint sm">$23M</div><div class="cap">Pancake · 6%</div></div>
+    <div class="card center"><div class="num blue">$165M</div><div class="cap">Uniswap</div></div>
+    <div class="card center"><div class="num orange">$152M</div><div class="cap">Pump</div></div>
+    <div class="card center"><div class="num mint sm">$23M</div><div class="cap">PancakeSwap</div></div>
   </div>
   <div class="grid3" style="margin-top:16px">
-    <div class="card center"><div class="num cyan sm">$24M</div><div class="cap">Meteora</div></div>
-    <div class="card center"><div class="num violet sm">$23M</div><div class="cap">Raydium</div></div>
-    <div class="card center"><div class="num gold sm">$17M</div><div class="cap">Aerodrome</div></div>
+    <div class="card center"><div class="num cyan sm">$20M</div><div class="cap">Meteora</div></div>
+    <div class="card center"><div class="num violet sm">$18M</div><div class="cap">Raydium</div></div>
+    <div class="card center"><div class="num gold sm">AMM</div><div class="cap">Uniswap ≫ Pancake</div></div>
   </div>
   <div class="sub" style="margin-top:16px;font-size:16px">Pump = bonding curve + PumpSwap, не классический AMM</div>
 </section>
 
 <section class="slide">
-  <div class="title wide">Большие комиссии не значит большой доход</div>
+  <div class="title wide">Большие комиссии ≠ большой доход</div>
   <div class="vs">
-    <div class="card center"><div class="num blue">$183M</div><div class="cap">Uniswap — комиссии</div></div>
+    <div class="card center"><div class="num blue">$165M</div><div class="cap">Uniswap — комиссии</div></div>
     <div class="mid">→</div>
-    <div class="card center"><div class="num mint">$15M</div><div class="cap">Uniswap — себе</div></div>
+    <div class="card center"><div class="num mint">$15M</div><div class="cap">Uniswap — себе · ~1%</div></div>
   </div>
   <div class="meter" style="margin-top:36px">
-    <div style="width:8%;background:var(--mint)"></div>
-    <div style="width:92%;background:rgba(110,182,255,.35)"></div>
+    <div style="width:9%;background:var(--mint)"></div>
+    <div style="width:91%;background:rgba(110,182,255,.35)"></div>
   </div>
-  <div class="sub" style="margin-top:14px"><b>~92%</b> уходит поставщикам ликвидности</div>
+  <div class="sub" style="margin-top:14px">основная часть уходит поставщикам ликвидности</div>
 </section>
 
 <section class="slide">
   <div class="title">Сколько зарабатывает lending</div>
-  <div class="huge violet">$132M</div>
-  <div class="sub">~6% всех комиссий за месяц</div>
+  <div class="huge violet">~$220M</div>
+  <div class="sub">порядка <b>10%</b> всех комиссий</div>
 </section>
 
 <section class="slide">
@@ -328,16 +311,16 @@ body::before{
 <section class="slide">
   <div class="title">Тройка лидеров lending</div>
   <div class="grid3">
-    <div class="card center"><div class="num violet">$35M</div><div class="cap">Aave · 26%</div></div>
-    <div class="card center"><div class="num gold">$27M</div><div class="cap">Sky · 20%</div></div>
-    <div class="card center"><div class="num blue">$17M</div><div class="cap">Morpho · 13%</div></div>
+    <div class="card center"><div class="num violet">$34M</div><div class="cap">Aave</div></div>
+    <div class="card center"><div class="num gold">$27M</div><div class="cap">Sky</div></div>
+    <div class="card center"><div class="num blue">$17M</div><div class="cap">Morpho</div></div>
   </div>
 </section>
 
 <section class="slide">
   <div class="title">Сколько зарабатывают перпы</div>
-  <div class="huge coral">$131M</div>
-  <div class="sub">~6% всех комиссий за месяц</div>
+  <div class="huge coral">15–20%</div>
+  <div class="sub">деривативы и perpetuals от всех комиссий</div>
 </section>
 
 <section class="slide">
@@ -350,43 +333,43 @@ body::before{
 
 <section class="slide">
   <div class="title">Главный игрок перпов</div>
-  <div class="huge mint">$78M</div>
-  <div class="sub">Hyperliquid · <b>59%</b> рынка перпов</div>
+  <div class="huge mint">$77M</div>
+  <div class="sub">Hyperliquid · за последние 30 дней</div>
 </section>
 
 <section class="slide">
   <div class="title">Куда уходят комиссии Hyperliquid</div>
   <div class="huge gold">99%</div>
-  <div class="sub">в фонд, который покупает HYPE</div>
+  <div class="sub">в Assistance Fund · покупка HYPE</div>
 </section>
 
 <section class="slide">
   <div class="title">Вся картина целиком</div>
   <div class="grid2">
     <div class="card center"><div class="num gold sm">$680M</div><div class="cap">стейбл-эмитенты</div></div>
-    <div class="card center"><div class="num blue sm">$415M</div><div class="cap">DEX</div></div>
-    <div class="card center"><div class="num violet sm">$132M</div><div class="cap">lending</div></div>
-    <div class="card center"><div class="num coral sm">$131M</div><div class="cap">перпы</div></div>
+    <div class="card center"><div class="num blue sm">~$550M</div><div class="cap">DEX · ~25%</div></div>
+    <div class="card center"><div class="num violet sm">~$220M</div><div class="cap">lending · ~10%</div></div>
+    <div class="card center"><div class="num coral sm">15–20%</div><div class="cap">перпы / деривативы</div></div>
   </div>
 </section>
 
 <section class="slide">
   <div class="title">Где лежит капитал на Ethereum</div>
   <div class="grid3">
-    <div class="card center"><div class="num blue">$49B</div><div class="cap">DeFi TVL</div></div>
+    <div class="card center"><div class="num blue">$50B</div><div class="cap">DeFi TVL</div></div>
     <div class="card center"><div class="num gold">$147B</div><div class="cap">стейблы</div></div>
     <div class="card center"><div class="num mint">$14B</div><div class="cap">реальные активы</div></div>
   </div>
-  <div class="sub" style="margin-top:28px">сама сеть зарабатывает <b>$12.5M</b> — приложения гораздо больше</div>
+  <div class="sub" style="margin-top:28px">ценность смещается к финансовым продуктам поверх сети</div>
 </section>
 
 <section class="slide">
   <div class="title wide">Большая часть ликвидности не работает</div>
   <div class="huge coral">85%</div>
-  <div class="sub" style="margin-bottom:22px">капитала используется слабо</div>
+  <div class="sub" style="margin-bottom:12px">из ~$1.84B в пулах Uniswap · Pancake · Aerodrome</div>
   <div class="idle"><div class="dead"></div><div class="live"></div></div>
   <div class="grid2" style="margin-top:28px;max-width:720px">
-    <div class="card center"><div class="num gold sm">$542M</div><div class="cap">полностью вне диапазона</div></div>
+    <div class="card center"><div class="num gold sm">$542M</div><div class="cap">полностью вне диапазона · ~30%</div></div>
     <div class="card center"><div class="num mint sm">$150M</div><div class="cap">упущенных комиссий в год</div></div>
   </div>
 </section>
@@ -450,9 +433,9 @@ body::before{
   <div class="title">Деньги никуда не исчезли</div>
   <div class="grid2" style="max-width:1000px">
     <div class="card center"><div class="num gold sm">$311B</div><div class="cap">стейблы</div></div>
-    <div class="card center"><div class="num blue sm">$415M</div><div class="cap">DEX за месяц</div></div>
-    <div class="card center"><div class="num coral sm">$131M</div><div class="cap">перпы за месяц</div></div>
-    <div class="card center"><div class="num violet sm">$132M</div><div class="cap">lending за месяц</div></div>
+    <div class="card center"><div class="num blue sm">~$550M</div><div class="cap">DEX за месяц</div></div>
+    <div class="card center"><div class="num coral sm">$77M</div><div class="cap">Hyperliquid · 30д</div></div>
+    <div class="card center"><div class="num violet sm">~$220M</div><div class="cap">lending · ~10%</div></div>
   </div>
 </section>
 
@@ -533,15 +516,14 @@ function doughnut(id, items){
   });
 }
 
-/* ——— данные кругов: каждый цвет = строка в легенде ——— */
+/* цифры строго по сценарию */
 const revItems = [
-  {name:'Tether', share:40.2, val:'40% · $484M', color:C.gold},
+  {name:'Tether', share:40.3, val:'40% · $484M', color:C.gold},
   {name:'Circle', share:16.3, val:'16% · $196M', color:C.blue},
-  {name:'Hyperliquid', share:5.1, val:'5% · $61M', color:C.mint},
-  {name:'Pump', share:4.4, val:'4% · $53M', color:C.orange},
-  {name:'Canton', share:4.1, val:'4% · $50M', color:C.violet},
-  {name:'GMGN', share:3.5, val:'4% · $43M', color:C.coral},
-  {name:'Остальные', share:26.4, val:'26% · $318M', color:C.gray}
+  {name:'Hyperliquid', share:5.3, val:'5% · $63M', color:C.mint},
+  {name:'Pump', share:4.7, val:'5% · $56M', color:C.orange},
+  {name:'Uniswap', share:1.3, val:'~1% · $15M', color:C.cyan},
+  {name:'Остальные', share:32.1, val:'32% · $386M', color:C.gray}
 ];
 renderLegend(document.getElementById('legRev'), revItems);
 doughnut('pieRev', revItems);
@@ -555,50 +537,38 @@ renderLegend(document.getElementById('legStables'), stablesItems);
 doughnut('pieStables', stablesItems);
 
 const catItems = [
-  {name:'Стейблкоины', share:30.7, val:'31% · $706M', color:C.gold},
-  {name:'DEX', share:18.0, val:'18% · $415M', color:C.blue},
-  {name:'Launchpads', share:10.7, val:'11% · $245M', color:C.orange},
-  {name:'Блокчейны (L1)', share:8.3, val:'8% · $191M', color:C.mint},
-  {name:'Стейкинг', share:8.1, val:'8% · $186M', color:C.violet},
-  {name:'Торговые приложения', share:7.0, val:'7% · $161M', color:C.cyan},
-  {name:'Lending', share:5.7, val:'6% · $132M', color:C.coral},
-  {name:'Перпы', share:5.7, val:'6% · $131M', color:C.pink},
-  {name:'Остальное', share:5.8, val:'6% · $133M', color:C.gray}
+  {name:'Стейблкоины', share:30, val:'~30% · ~$660M', color:C.gold},
+  {name:'DEX', share:25, val:'~25% · ~$550M', color:C.blue},
+  {name:'Перпы / деривативы', share:17, val:'15–20%', color:C.coral},
+  {name:'Lending', share:10, val:'~10% · ~$220M', color:C.violet},
+  {name:'Остальное', share:18, val:'LRT · launchpads · bridges', color:C.gray}
 ];
 renderLegend(document.getElementById('legCats'), catItems);
 doughnut('pieCats', catItems);
 
 const dexItems = [
-  {name:'Uniswap V4', share:29.8, val:'30% · $124M', color:C.blue},
-  {name:'PumpSwap', share:23.9, val:'24% · $99M', color:C.orange},
-  {name:'Uniswap V3', share:13.0, val:'13% · $54M', color:C.cyan},
-  {name:'Raydium', share:5.5, val:'6% · $23M', color:C.violet},
-  {name:'Meteora', share:4.8, val:'5% · $20M', color:C.mint},
-  {name:'PancakeSwap', share:3.9, val:'4% · $16M', color:C.gold},
-  {name:'Aerodrome', share:3.7, val:'4% · $16M', color:C.coral},
-  {name:'Остальные DEX', share:15.4, val:'15% · $64M', color:C.gray}
+  {name:'Uniswap', share:30, val:'$165M', color:C.blue},
+  {name:'Pump', share:28, val:'$152M', color:C.orange},
+  {name:'PancakeSwap', share:4, val:'$23M', color:C.gold},
+  {name:'Meteora', share:4, val:'$20M', color:C.mint},
+  {name:'Raydium', share:3, val:'$18M', color:C.violet},
+  {name:'Остальные DEX', share:31, val:'хвост рынка', color:C.gray}
 ];
 renderLegend(document.getElementById('legDex'), dexItems);
 doughnut('pieDex', dexItems);
 
 const lendItems = [
-  {name:'Aave', share:26, val:'26% · $35M', color:C.violet},
-  {name:'Sky', share:20, val:'20% · $27M', color:C.gold},
-  {name:'Morpho', share:13, val:'13% · $17M', color:C.blue},
-  {name:'WLFI', share:8, val:'8% · $11M', color:C.orange},
-  {name:'Maple', share:7, val:'7% · $10M', color:C.mint},
-  {name:'Остальные', share:26, val:'26% · $34M', color:C.gray}
+  {name:'Aave', share:15, val:'$34M', color:C.violet},
+  {name:'Sky', share:12, val:'$27M', color:C.gold},
+  {name:'Morpho', share:8, val:'$17M', color:C.blue},
+  {name:'Остальные', share:65, val:'другие рынки', color:C.gray}
 ];
 renderLegend(document.getElementById('legLend'), lendItems);
 doughnut('pieLend', lendItems);
 
 const perpsItems = [
-  {name:'Hyperliquid', share:59, val:'59% · $78M', color:C.mint},
-  {name:'Jupiter', share:8, val:'8% · $11M', color:C.blue},
-  {name:'Aster', share:5, val:'5% · $7M', color:C.orange},
-  {name:'edgeX', share:4, val:'4% · $5M', color:C.violet},
-  {name:'Lighter', share:3, val:'3% · $4M', color:C.gold},
-  {name:'Остальные', share:21, val:'21% · $27M', color:C.gray}
+  {name:'Hyperliquid', share:77, val:'$77M · 30д', color:C.mint},
+  {name:'Остальной рынок', share:23, val:'другие перпы', color:C.gray}
 ];
 renderLegend(document.getElementById('legPerps'), perpsItems);
 doughnut('piePerps', perpsItems);
@@ -606,11 +576,11 @@ doughnut('piePerps', perpsItems);
 new Chart(document.getElementById('barRev'),{
   type:'bar',
   data:{
-    labels:['Tether','Circle','Hyperliquid','Pump','Canton','GMGN','Robinhood','fomo','Axiom','Tron','Pons','Uniswap'],
+    labels:['Tether','Circle','Hyperliquid','Pump','Uniswap'],
     datasets:[{
-      data:[484,196,61,53,50,43,34,27,25,25,21,15],
-      backgroundColor:[C.gold,C.blue,C.mint,C.orange,C.violet,C.coral,C.cyan,C.mint,C.blue,C.gold,C.orange,C.blue],
-      borderRadius:10,borderSkipped:false,barThickness:34
+      data:[484,196,63,56,15],
+      backgroundColor:[C.gold,C.blue,C.mint,C.orange,C.cyan],
+      borderRadius:10,borderSkipped:false,barThickness:42
     }]
   },
   options:{
