@@ -115,34 +115,35 @@ body::before{
 }
 .pie-tags{position:absolute;inset:0;z-index:5;pointer-events:none}
 .pie-tag{
-  position:absolute;width:210px;
-  padding:12px 14px 12px 16px;
+  position:absolute;width:200px;
+  padding:10px 12px 10px 14px;
   border-radius:14px;
-  background:rgba(12,16,28,.92);
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-  backdrop-filter:blur(10px);
+  background:linear-gradient(180deg,rgba(18,24,38,.96),rgba(10,14,24,.92));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 12px 36px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(12px);
   transform:translateY(-50%);
   opacity:0;
-  transition:opacity .35s ease, transform .35s ease;
+  transition:opacity .4s ease;
 }
 .pie-stage.is-ready .pie-tag{opacity:1}
 .pie-tag::before{
-  content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:4px;
+  content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;
   background:var(--tag);
+  box-shadow:0 0 12px var(--tag);
 }
-.pie-tag .t-name{font-size:15px;font-weight:800;color:#fff;line-height:1.15;padding-left:6px}
+.pie-tag .t-name{font-size:14px;font-weight:800;color:#fff;line-height:1.15;padding-left:8px}
 .pie-tag .t-val{
-  margin-top:6px;padding-left:6px;
-  font-family:Outfit,sans-serif;font-weight:800;font-size:22px;line-height:1;
+  margin-top:5px;padding-left:8px;
+  font-family:Outfit,sans-serif;font-weight:800;font-size:20px;line-height:1;
   color:var(--tag);font-variant-numeric:tabular-nums;
 }
-.pie-tag .t-sub{margin-top:4px;padding-left:6px;font-size:13px;font-weight:700;color:var(--muted)}
+.pie-tag .t-sub{margin-top:3px;padding-left:8px;font-size:12px;font-weight:700;color:var(--muted)}
 .pie-tag.side-left{text-align:right}
 .pie-tag.side-left::before{left:auto;right:0}
 .pie-tag.side-left .t-name,
 .pie-tag.side-left .t-val,
-.pie-tag.side-left .t-sub{padding-left:0;padding-right:6px}
+.pie-tag.side-left .t-sub{padding-left:0;padding-right:8px}
 
 .chart.wide{max-width:1100px;height:460px;width:100%}
 .meter{width:min(920px,100%);height:52px;border-radius:14px;overflow:hidden;display:flex;background:rgba(255,255,255,.06)}
@@ -580,11 +581,10 @@ function layoutPieCallouts(app){
 
   const ox = cr.left - sr.left;
   const oy = cr.top - sr.top;
-  const tagW = Math.min(210, sr.width * 0.2);
-  const padX = 8;
+  const tagW = Math.min(200, sr.width * 0.19);
+  const padX = 10;
   const padY = 36;
-  const gap = Math.min(64, Math.max(52, sr.height / (items.length + 1)));
-  const elbow = 26;
+  const gap = Math.min(62, Math.max(50, sr.height / (items.length + 1)));
 
   const pts = meta.data.map((arc, idx)=>{
     const mid = (arc.startAngle + arc.endAngle) / 2;
@@ -611,32 +611,30 @@ function layoutPieCallouts(app){
 
   placed.forEach(p=>{
     const isRight = p.side === 'right';
-    const ex = p.ax + Math.cos(p.mid) * 14;
-    const ey = p.ay + Math.sin(p.mid) * 14;
-    const gutterX = isRight
-      ? Math.max(ex + elbow, sr.width * 0.5 + p.r * 0.15)
-      : Math.min(ex - elbow, sr.width * 0.5 - p.r * 0.15);
     const labelX = isRight ? sr.width - padX - tagW : padX;
     const joinX = isRight ? labelX : labelX + tagW;
     const color = p.item.color;
+    const pull = isRight ? 56 : -56;
+    const c1x = p.ax + Math.cos(p.mid) * 36;
+    const c1y = p.ay + Math.sin(p.mid) * 36;
+    const c2x = joinX - pull * 0.55;
+    const c2y = p.ly;
 
     wires += `
       <path d="M ${p.ax.toFixed(1)} ${p.ay.toFixed(1)}
-               L ${ex.toFixed(1)} ${ey.toFixed(1)}
-               L ${gutterX.toFixed(1)} ${ey.toFixed(1)}
-               L ${gutterX.toFixed(1)} ${p.ly.toFixed(1)}
-               L ${joinX.toFixed(1)} ${p.ly.toFixed(1)}"
-            fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-      <circle cx="${p.ax.toFixed(1)}" cy="${p.ay.toFixed(1)}" r="4.2" fill="${color}"/>
-      <circle cx="${joinX.toFixed(1)}" cy="${p.ly.toFixed(1)}" r="3.6" fill="${color}"/>
+               C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${joinX.toFixed(1)} ${p.ly.toFixed(1)}"
+            fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round"
+            opacity="0.95" filter="url(#glow)"/>
+      <circle cx="${p.ax.toFixed(1)}" cy="${p.ay.toFixed(1)}" r="5" fill="${color}" filter="url(#glow)"/>
+      <circle cx="${joinX.toFixed(1)}" cy="${p.ly.toFixed(1)}" r="4" fill="${color}"/>
     `;
 
-    const val = p.item.pct + (p.item.amt ? ` · ${p.item.amt}` : '');
+    const sub = p.item.amt || p.item.note || '';
     tags += `
       <div class="pie-tag side-${p.side}" style="top:${p.ly}px;${isRight ? `right:${padX}px` : `left:${padX}px`};--tag:${color};width:${tagW}px">
         <div class="t-name">${p.item.name}</div>
         <div class="t-val">${p.item.pct}</div>
-        ${p.item.amt ? `<div class="t-sub">${p.item.amt}</div>` : (p.item.note ? `<div class="t-sub">${p.item.note}</div>` : '')}
+        ${sub ? `<div class="t-sub">${sub}</div>` : ''}
       </div>
     `;
   });
@@ -644,7 +642,15 @@ function layoutPieCallouts(app){
   svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
   svg.setAttribute('width', sr.width);
   svg.setAttribute('height', sr.height);
-  svg.innerHTML = wires;
+  svg.innerHTML = `
+    <defs>
+      <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="2.2" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    ${wires}
+  `;
   tagsEl.innerHTML = tags;
   requestAnimationFrame(()=>stage.classList.add('is-ready'));
 }
