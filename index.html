@@ -81,32 +81,42 @@ body::before{
 
 .pie-layout{
   display:grid;
-  grid-template-columns: minmax(280px,420px) minmax(320px,520px);
-  gap:36px;
+  grid-template-columns: minmax(260px,380px) minmax(360px,560px);
+  gap:40px;
   align-items:center;
   width:min(1100px,100%);
 }
-.chart{width:100%;height:400px;position:relative}
+.chart{width:100%;height:360px;position:relative}
 .chart.wide{max-width:1100px;height:460px;width:100%}
 
-.legend{display:flex;flex-direction:column;gap:8px;width:100%}
+.legend{display:flex;flex-direction:column;gap:10px;width:100%}
 .leg{
   display:grid;
-  grid-template-columns:22px 1fr auto;
-  gap:14px;
+  grid-template-columns:10px 1fr auto;
+  gap:16px;
   align-items:center;
-  padding:14px 18px;
-  border-radius:14px;
+  padding:16px 20px;
+  border-radius:16px;
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.08);
 }
-.swatch{width:18px;height:18px;border-radius:5px;flex-shrink:0}
-.leg-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.01em}
-.leg-val{
+.swatch{
+  width:10px;height:100%;min-height:44px;border-radius:6px;align-self:stretch;
+}
+.leg-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.leg-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.01em;line-height:1.15}
+.leg-note{font-size:15px;font-weight:600;color:var(--muted)}
+.leg-nums{text-align:right;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.leg-pct{
   font-family:Outfit,sans-serif;
-  font-size:22px;font-weight:800;
+  font-size:28px;font-weight:800;line-height:1;
   font-variant-numeric:tabular-nums;
-  white-space:nowrap;
+}
+.leg-amt{
+  font-family:Outfit,sans-serif;
+  font-size:18px;font-weight:800;
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
 }
 
 .meter{width:min(920px,100%);height:52px;border-radius:14px;overflow:hidden;display:flex;background:rgba(255,255,255,.06)}
@@ -481,8 +491,14 @@ function renderLegend(el, items){
   el.innerHTML = items.map(it => `
     <div class="leg">
       <span class="swatch" style="background:${it.color}"></span>
-      <span class="leg-name">${it.name}</span>
-      <span class="leg-val" style="color:${it.color}">${it.val}</span>
+      <div class="leg-main">
+        <span class="leg-name">${it.name}</span>
+        ${it.note ? `<span class="leg-note">${it.note}</span>` : ''}
+      </div>
+      <div class="leg-nums">
+        <span class="leg-pct" style="color:${it.color}">${it.pct}</span>
+        ${it.amt ? `<span class="leg-amt">${it.amt}</span>` : ''}
+      </div>
     </div>
   `).join('');
 }
@@ -495,41 +511,24 @@ function doughnut(id, items){
       datasets:[{
         data: items.map(x=>x.share),
         backgroundColor: items.map(x=>x.color),
-        borderWidth: 3,
+        borderWidth: 4,
         borderColor: '#06080f',
-        hoverOffset: 6
+        hoverOffset: 4
       }]
     },
     options:{
-      cutout:'48%',
-      layout:{padding:28},
+      cutout:'58%',
+      layout:{padding:8},
       responsive:true,
       maintainAspectRatio:false,
       plugins:{
+        datalabels:{display:false},
         tooltip:{
           callbacks:{
             label:(c)=>{
               const it=items[c.dataIndex];
-              return ` ${it.name}: ${it.val}`;
+              return ` ${it.name}: ${it.pct}${it.amt ? ' · ' + it.amt : ''}`;
             }
-          }
-        },
-        datalabels:{
-          display:true,
-          color:'#fff',
-          backgroundColor:(ctx)=>'rgba(6,8,15,.85)',
-          borderRadius:8,
-          padding:{top:6,bottom:6,left:8,right:8},
-          font:{family:'Outfit, Manrope, sans-serif', weight:800, size:13, lineHeight:1.15},
-          textAlign:'center',
-          anchor:(ctx)=>items[ctx.dataIndex].share >= 12 ? 'center' : 'end',
-          align:(ctx)=>items[ctx.dataIndex].share >= 12 ? 'center' : 'end',
-          offset:(ctx)=>items[ctx.dataIndex].share >= 12 ? 0 : 14,
-          clamp:true,
-          formatter:(v, ctx)=>{
-            const it=items[ctx.dataIndex];
-            const short = it.label || it.val;
-            return it.name + '\n' + short;
           }
         }
       }
@@ -537,59 +536,59 @@ function doughnut(id, items){
   });
 }
 
-/* цифры строго по сценарию · label = короткая подпись на сегменте */
+/* цифры строго по сценарию · pct/amt читаются в легенде */
 const revItems = [
-  {name:'Tether', share:40.3, val:'40% · $484M', label:'$484M', color:C.gold},
-  {name:'Circle', share:16.3, val:'16% · $196M', label:'$196M', color:C.blue},
-  {name:'Hyperliquid', share:5.3, val:'5% · $63M', label:'$63M', color:C.mint},
-  {name:'Pump', share:4.7, val:'5% · $56M', label:'$56M', color:C.orange},
-  {name:'Uniswap', share:1.3, val:'~1% · $15M', label:'$15M', color:C.cyan},
-  {name:'Остальные', share:32.1, val:'32% · $386M', label:'$386M', color:C.gray}
+  {name:'Tether', share:40.3, pct:'40%', amt:'$484M', color:C.gold},
+  {name:'Circle', share:16.3, pct:'16%', amt:'$196M', color:C.blue},
+  {name:'Hyperliquid', share:5.3, pct:'5%', amt:'$63M', color:C.mint},
+  {name:'Pump', share:4.7, pct:'5%', amt:'$56M', color:C.orange},
+  {name:'Uniswap', share:1.3, pct:'~1%', amt:'$15M', color:C.cyan},
+  {name:'Остальные', share:32.1, pct:'32%', amt:'$386M', color:C.gray}
 ];
 renderLegend(document.getElementById('legRev'), revItems);
 doughnut('pieRev', revItems);
 
 const stablesItems = [
-  {name:'USDT · Tether', share:59, val:'59% · $183B', label:'59% · $183B', color:C.gold},
-  {name:'USDC · Circle', share:24, val:'24% · $74B', label:'24% · $74B', color:C.blue},
-  {name:'Все остальные', share:17, val:'17% · $54B', label:'17% · $54B', color:C.gray}
+  {name:'USDT · Tether', share:59, pct:'59%', amt:'$183B', color:C.gold},
+  {name:'USDC · Circle', share:24, pct:'24%', amt:'$74B', color:C.blue},
+  {name:'Все остальные', share:17, pct:'17%', amt:'$54B', color:C.gray}
 ];
 renderLegend(document.getElementById('legStables'), stablesItems);
 doughnut('pieStables', stablesItems);
 
 const catItems = [
-  {name:'Стейблкоины', share:30, val:'~30% · ~$660M', label:'~30%', color:C.gold},
-  {name:'DEX', share:25, val:'~25% · ~$550M', label:'~25%', color:C.blue},
-  {name:'Перпы / деривативы', share:17, val:'15–20%', label:'15–20%', color:C.coral},
-  {name:'Lending', share:10, val:'~10% · ~$220M', label:'~10%', color:C.violet},
-  {name:'Остальное', share:18, val:'LRT · launchpads · bridges', label:'остальное', color:C.gray}
+  {name:'Стейблкоины', share:30, pct:'~30%', amt:'~$660M', color:C.gold},
+  {name:'DEX', share:25, pct:'~25%', amt:'~$550M', color:C.blue},
+  {name:'Перпы / деривативы', share:17, pct:'15–20%', amt:'от всех fees', color:C.coral},
+  {name:'Lending', share:10, pct:'~10%', amt:'~$220M', color:C.violet},
+  {name:'Остальное', share:18, pct:'~18%', amt:'LRT · launchpads · bridges', note:'liquid staking, мосты, агрегаторы', color:C.gray}
 ];
 renderLegend(document.getElementById('legCats'), catItems);
 doughnut('pieCats', catItems);
 
 const dexItems = [
-  {name:'Uniswap', share:30, val:'$165M', label:'$165M', color:C.blue},
-  {name:'Pump', share:28, val:'$152M', label:'$152M', color:C.orange},
-  {name:'PancakeSwap', share:4, val:'$23M', label:'$23M', color:C.gold},
-  {name:'Meteora', share:4, val:'$20M', label:'$20M', color:C.mint},
-  {name:'Raydium', share:3, val:'$18M', label:'$18M', color:C.violet},
-  {name:'Остальные DEX', share:31, val:'хвост рынка', label:'хвост', color:C.gray}
+  {name:'Uniswap', share:30, pct:'$165M', amt:'лидер AMM', color:C.blue},
+  {name:'Pump', share:28, pct:'$152M', amt:'bonding + PumpSwap', note:'не классический AMM', color:C.orange},
+  {name:'PancakeSwap', share:4, pct:'$23M', amt:'', color:C.gold},
+  {name:'Meteora', share:4, pct:'$20M', amt:'', color:C.mint},
+  {name:'Raydium', share:3, pct:'$18M', amt:'', color:C.violet},
+  {name:'Остальные DEX', share:31, pct:'хвост', amt:'остальной рынок', color:C.gray}
 ];
 renderLegend(document.getElementById('legDex'), dexItems);
 doughnut('pieDex', dexItems);
 
 const lendItems = [
-  {name:'Aave', share:15, val:'$34M', label:'$34M', color:C.violet},
-  {name:'Sky', share:12, val:'$27M', label:'$27M', color:C.gold},
-  {name:'Morpho', share:8, val:'$17M', label:'$17M', color:C.blue},
-  {name:'Остальные', share:65, val:'другие рынки', label:'другие', color:C.gray}
+  {name:'Aave', share:15, pct:'$34M', amt:'лидер lending', color:C.violet},
+  {name:'Sky', share:12, pct:'$27M', amt:'', color:C.gold},
+  {name:'Morpho', share:8, pct:'$17M', amt:'', color:C.blue},
+  {name:'Остальные', share:65, pct:'остальные', amt:'другие рынки', color:C.gray}
 ];
 renderLegend(document.getElementById('legLend'), lendItems);
 doughnut('pieLend', lendItems);
 
 const perpsItems = [
-  {name:'Hyperliquid', share:77, val:'$77M · 30д', label:'$77M', color:C.mint},
-  {name:'Остальной рынок', share:23, val:'другие перпы', label:'остальные', color:C.gray}
+  {name:'Hyperliquid', share:77, pct:'$77M', amt:'за 30 дней', color:C.mint},
+  {name:'Остальной рынок', share:23, pct:'остальные', amt:'другие перпы', color:C.gray}
 ];
 renderLegend(document.getElementById('legPerps'), perpsItems);
 doughnut('piePerps', perpsItems);
@@ -603,12 +602,12 @@ new Chart(document.getElementById('barRev'),{
     datasets:[{
       data: barVals,
       backgroundColor:[C.gold,C.blue,C.mint,C.orange,C.cyan],
-      borderRadius:10,borderSkipped:false,barThickness:48
+      borderRadius:12,borderSkipped:false,barThickness:52
     }]
   },
   options:{
     indexAxis:'y',responsive:true,maintainAspectRatio:false,
-    layout:{padding:{right:72}},
+    layout:{padding:{right:88}},
     scales:{
       x:{
         max:560,
@@ -617,7 +616,7 @@ new Chart(document.getElementById('barRev'),{
       },
       y:{
         grid:{display:false},
-        ticks:{font:{size:18,weight:'800'},color:'#f3f5f9'}
+        ticks:{font:{size:20,weight:'800'},color:'#f3f5f9'}
       }
     },
     plugins:{
@@ -625,9 +624,12 @@ new Chart(document.getElementById('barRev'),{
       datalabels:{
         anchor:'end',
         align:'right',
-        offset:8,
+        offset:10,
         color:'#fff',
-        font:{family:'Outfit, Manrope, sans-serif', weight:800, size:20},
+        backgroundColor:'rgba(6,8,15,.75)',
+        borderRadius:8,
+        padding:{top:4,bottom:4,left:8,right:8},
+        font:{family:'Outfit, Manrope, sans-serif', weight:800, size:18},
         formatter:(v)=>'$'+v+'M'
       }
     }
