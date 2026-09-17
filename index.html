@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root {
   --bg:#06080f; --panel:rgba(18,24,38,.92); --line:rgba(255,255,255,.1);
@@ -85,25 +86,25 @@ body::before{
   align-items:center;
   width:min(1100px,100%);
 }
-.chart{width:100%;height:380px;position:relative}
-.chart.wide{max-width:1100px;height:420px;width:100%}
+.chart{width:100%;height:400px;position:relative}
+.chart.wide{max-width:1100px;height:460px;width:100%}
 
-.legend{display:flex;flex-direction:column;gap:10px;width:100%}
+.legend{display:flex;flex-direction:column;gap:8px;width:100%}
 .leg{
   display:grid;
   grid-template-columns:22px 1fr auto;
   gap:14px;
   align-items:center;
-  padding:12px 16px;
+  padding:14px 18px;
   border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
 }
 .swatch{width:18px;height:18px;border-radius:5px;flex-shrink:0}
-.leg-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.leg-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.01em}
 .leg-val{
   font-family:Outfit,sans-serif;
-  font-size:20px;font-weight:800;
+  font-size:22px;font-weight:800;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
 }
@@ -453,6 +454,7 @@ const C = {
   violet:'#b39bff', orange:'#ff9a5c', cyan:'#5ad0ff', gray:'#8b93a5', pink:'#ff8ad0'
 };
 
+Chart.register(ChartDataLabels);
 Chart.defaults.color='#c5cbd6';
 Chart.defaults.font.family='Manrope, system-ui, sans-serif';
 Chart.defaults.font.weight='700';
@@ -495,11 +497,12 @@ function doughnut(id, items){
         backgroundColor: items.map(x=>x.color),
         borderWidth: 3,
         borderColor: '#06080f',
-        hoverOffset: 8
+        hoverOffset: 6
       }]
     },
     options:{
-      cutout:'55%',
+      cutout:'48%',
+      layout:{padding:28},
       responsive:true,
       maintainAspectRatio:false,
       plugins:{
@@ -510,86 +513,124 @@ function doughnut(id, items){
               return ` ${it.name}: ${it.val}`;
             }
           }
+        },
+        datalabels:{
+          display:true,
+          color:'#fff',
+          backgroundColor:(ctx)=>'rgba(6,8,15,.85)',
+          borderRadius:8,
+          padding:{top:6,bottom:6,left:8,right:8},
+          font:{family:'Outfit, Manrope, sans-serif', weight:800, size:13, lineHeight:1.15},
+          textAlign:'center',
+          anchor:(ctx)=>items[ctx.dataIndex].share >= 12 ? 'center' : 'end',
+          align:(ctx)=>items[ctx.dataIndex].share >= 12 ? 'center' : 'end',
+          offset:(ctx)=>items[ctx.dataIndex].share >= 12 ? 0 : 14,
+          clamp:true,
+          formatter:(v, ctx)=>{
+            const it=items[ctx.dataIndex];
+            const short = it.label || it.val;
+            return it.name + '\n' + short;
+          }
         }
       }
     }
   });
 }
 
-/* цифры строго по сценарию */
+/* цифры строго по сценарию · label = короткая подпись на сегменте */
 const revItems = [
-  {name:'Tether', share:40.3, val:'40% · $484M', color:C.gold},
-  {name:'Circle', share:16.3, val:'16% · $196M', color:C.blue},
-  {name:'Hyperliquid', share:5.3, val:'5% · $63M', color:C.mint},
-  {name:'Pump', share:4.7, val:'5% · $56M', color:C.orange},
-  {name:'Uniswap', share:1.3, val:'~1% · $15M', color:C.cyan},
-  {name:'Остальные', share:32.1, val:'32% · $386M', color:C.gray}
+  {name:'Tether', share:40.3, val:'40% · $484M', label:'$484M', color:C.gold},
+  {name:'Circle', share:16.3, val:'16% · $196M', label:'$196M', color:C.blue},
+  {name:'Hyperliquid', share:5.3, val:'5% · $63M', label:'$63M', color:C.mint},
+  {name:'Pump', share:4.7, val:'5% · $56M', label:'$56M', color:C.orange},
+  {name:'Uniswap', share:1.3, val:'~1% · $15M', label:'$15M', color:C.cyan},
+  {name:'Остальные', share:32.1, val:'32% · $386M', label:'$386M', color:C.gray}
 ];
 renderLegend(document.getElementById('legRev'), revItems);
 doughnut('pieRev', revItems);
 
 const stablesItems = [
-  {name:'USDT · Tether', share:59, val:'59% · $183B', color:C.gold},
-  {name:'USDC · Circle', share:24, val:'24% · $74B', color:C.blue},
-  {name:'Все остальные', share:17, val:'17% · $54B', color:C.gray}
+  {name:'USDT · Tether', share:59, val:'59% · $183B', label:'59% · $183B', color:C.gold},
+  {name:'USDC · Circle', share:24, val:'24% · $74B', label:'24% · $74B', color:C.blue},
+  {name:'Все остальные', share:17, val:'17% · $54B', label:'17% · $54B', color:C.gray}
 ];
 renderLegend(document.getElementById('legStables'), stablesItems);
 doughnut('pieStables', stablesItems);
 
 const catItems = [
-  {name:'Стейблкоины', share:30, val:'~30% · ~$660M', color:C.gold},
-  {name:'DEX', share:25, val:'~25% · ~$550M', color:C.blue},
-  {name:'Перпы / деривативы', share:17, val:'15–20%', color:C.coral},
-  {name:'Lending', share:10, val:'~10% · ~$220M', color:C.violet},
-  {name:'Остальное', share:18, val:'LRT · launchpads · bridges', color:C.gray}
+  {name:'Стейблкоины', share:30, val:'~30% · ~$660M', label:'~30%', color:C.gold},
+  {name:'DEX', share:25, val:'~25% · ~$550M', label:'~25%', color:C.blue},
+  {name:'Перпы / деривативы', share:17, val:'15–20%', label:'15–20%', color:C.coral},
+  {name:'Lending', share:10, val:'~10% · ~$220M', label:'~10%', color:C.violet},
+  {name:'Остальное', share:18, val:'LRT · launchpads · bridges', label:'остальное', color:C.gray}
 ];
 renderLegend(document.getElementById('legCats'), catItems);
 doughnut('pieCats', catItems);
 
 const dexItems = [
-  {name:'Uniswap', share:30, val:'$165M', color:C.blue},
-  {name:'Pump', share:28, val:'$152M', color:C.orange},
-  {name:'PancakeSwap', share:4, val:'$23M', color:C.gold},
-  {name:'Meteora', share:4, val:'$20M', color:C.mint},
-  {name:'Raydium', share:3, val:'$18M', color:C.violet},
-  {name:'Остальные DEX', share:31, val:'хвост рынка', color:C.gray}
+  {name:'Uniswap', share:30, val:'$165M', label:'$165M', color:C.blue},
+  {name:'Pump', share:28, val:'$152M', label:'$152M', color:C.orange},
+  {name:'PancakeSwap', share:4, val:'$23M', label:'$23M', color:C.gold},
+  {name:'Meteora', share:4, val:'$20M', label:'$20M', color:C.mint},
+  {name:'Raydium', share:3, val:'$18M', label:'$18M', color:C.violet},
+  {name:'Остальные DEX', share:31, val:'хвост рынка', label:'хвост', color:C.gray}
 ];
 renderLegend(document.getElementById('legDex'), dexItems);
 doughnut('pieDex', dexItems);
 
 const lendItems = [
-  {name:'Aave', share:15, val:'$34M', color:C.violet},
-  {name:'Sky', share:12, val:'$27M', color:C.gold},
-  {name:'Morpho', share:8, val:'$17M', color:C.blue},
-  {name:'Остальные', share:65, val:'другие рынки', color:C.gray}
+  {name:'Aave', share:15, val:'$34M', label:'$34M', color:C.violet},
+  {name:'Sky', share:12, val:'$27M', label:'$27M', color:C.gold},
+  {name:'Morpho', share:8, val:'$17M', label:'$17M', color:C.blue},
+  {name:'Остальные', share:65, val:'другие рынки', label:'другие', color:C.gray}
 ];
 renderLegend(document.getElementById('legLend'), lendItems);
 doughnut('pieLend', lendItems);
 
 const perpsItems = [
-  {name:'Hyperliquid', share:77, val:'$77M · 30д', color:C.mint},
-  {name:'Остальной рынок', share:23, val:'другие перпы', color:C.gray}
+  {name:'Hyperliquid', share:77, val:'$77M · 30д', label:'$77M', color:C.mint},
+  {name:'Остальной рынок', share:23, val:'другие перпы', label:'остальные', color:C.gray}
 ];
 renderLegend(document.getElementById('legPerps'), perpsItems);
 doughnut('piePerps', perpsItems);
 
+const barLabels = ['Tether','Circle','Hyperliquid','Pump','Uniswap'];
+const barVals = [484,196,63,56,15];
 new Chart(document.getElementById('barRev'),{
   type:'bar',
   data:{
-    labels:['Tether','Circle','Hyperliquid','Pump','Uniswap'],
+    labels: barLabels,
     datasets:[{
-      data:[484,196,63,56,15],
+      data: barVals,
       backgroundColor:[C.gold,C.blue,C.mint,C.orange,C.cyan],
-      borderRadius:10,borderSkipped:false,barThickness:42
+      borderRadius:10,borderSkipped:false,barThickness:48
     }]
   },
   options:{
     indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    layout:{padding:{right:72}},
     scales:{
-      x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>'$'+v+'M',font:{size:14,weight:'700'},color:'#c5cbd6'}},
-      y:{grid:{display:false},ticks:{font:{size:16,weight:'800'},color:'#f3f5f9'}}
+      x:{
+        max:560,
+        grid:{color:'rgba(255,255,255,.05)'},
+        ticks:{callback:v=>'$'+v+'M',font:{size:14,weight:'700'},color:'#c5cbd6'}
+      },
+      y:{
+        grid:{display:false},
+        ticks:{font:{size:18,weight:'800'},color:'#f3f5f9'}
+      }
     },
-    plugins:{tooltip:{callbacks:{label:c=>` $${c.raw}M`}}}
+    plugins:{
+      tooltip:{callbacks:{label:c=>` $${c.raw}M`}},
+      datalabels:{
+        anchor:'end',
+        align:'right',
+        offset:8,
+        color:'#fff',
+        font:{family:'Outfit, Manrope, sans-serif', weight:800, size:20},
+        formatter:(v)=>'$'+v+'M'
+      }
+    }
   }
 });
 
